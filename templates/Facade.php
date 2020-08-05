@@ -72,7 +72,7 @@ foreach($method->getParameters() as $param) {
   }
 
   if($param->hasType()) {
-    $p = "{$param->getType()} $p";
+    $p = "{$param->getType()->getName()} $p";
 
     if($param->allowsNull()) {
       $p = "?$p";
