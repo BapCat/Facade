@@ -14,11 +14,11 @@ class FacadeTest extends TestCase {
 
   /**
    * @dataProvider       badBindingsProvider
-   * @expectedException  InvalidArgumentException
    */
   public function testBadBindings($class): void {
     require_once __DIR__ . "/stubs/$class.php";
 
+    $this->expectException(InvalidArgumentException::class);
     $class::test();
   }
 
@@ -29,10 +29,8 @@ class FacadeTest extends TestCase {
     ];
   }
 
-  /**
-   * @expectedException  Error
-   */
   public function testCallingMethodThatDoesntExist(): void {
+    $this->expectException(Error::class);
     FooFacade::thisMethodDoesntExist();
   }
 

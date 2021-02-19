@@ -88,7 +88,14 @@ class FacadeDefinition {
           foreach($throwsRegex->capture(new Text($method->getDocComment())) as $exception) {
             $exception = trim((string)reset($exception));
 
-            $methodImports = $useStatementParser->parseUseStatements($method->getDeclaringClass());
+            try {
+              // Methods may not have prototypes. This allows resolving trait methods on the trait itself.
+              $methodClass = $method->getPrototype()->getDeclaringClass();
+            } catch(ReflectionException $ignored) {
+              $methodClass = $method->getDeclaringClass();
+            }
+
+            $methodImports = $useStatementParser->parseUseStatements($methodClass);
             $found = false;
 
             foreach($methodImports as $methodImport) {
