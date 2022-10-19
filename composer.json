@@ -19,7 +19,7 @@
     "sort-packages": true
   },
   "require": {
-    "php": "^7.4",
+    "php": "^7.4|^8.0",
     "ext-json": "*",
     "bapcat/tailor": "^0.6",
     "bapcat/propifier": "^3.0",
