@@ -122,7 +122,7 @@ class FacadeDefinition {
       }
 
       // Don't add imports for classes in the global namespace since facades are generated in the global namespace
-      if(strpos($import, '\\') === false) {
+      if(preg_match('#^\\\\?[^\\\\]+?$#', $import) === 1) {
         return false;
       }
 
