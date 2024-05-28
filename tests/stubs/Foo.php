@@ -12,4 +12,8 @@ class Foo {
   public function returnThis(): self {
     return $this;
   }
+
+  public function unionType(string|int $var): string|int {
+    return $var;
+  }
 }

@@ -13,13 +13,13 @@
   "config": {
     "preferred-install": "dist",
     "platform": {
-      "php": "7.4"
+      "php": "8.0"
     },
     "optimize-autoloader": true,
     "sort-packages": true
   },
   "require": {
-    "php": "^7.4|^8.0",
+    "php": "^8.0",
     "ext-json": "*",
     "bapcat/tailor": "^0.6",
     "bapcat/propifier": "^3.0",

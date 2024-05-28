@@ -67,19 +67,38 @@ foreach($method->getParameters() as $param) {
   $p = '$' . $param->getName();
   $args[] = $p;
 
+  if($param->isPassedByReference()) {
+    $p = "&$p";
+  }
+
   if($param->isVariadic()) {
     $p = "...$p";
   }
 
   if($param->hasType()) {
-    $p = "{$param->getType()->getName()} $p";
+    if($param->getType() instanceof ReflectionUnionType) {
+      $types = $param->getType()->getTypes();
+    } else {
+      $types = [$param->getType()];
+    }
+
+    $strs = [];
+    foreach($types as $type) {
+      $strs[] = $type->getName();
+    }
+
+    $paramList = implode('|', $strs);
 
     if($param->allowsNull()) {
-      $p = "?$p";
+      if(!($param->getType() instanceof ReflectionUnionType)) {
+        $paramList = "?$paramList";
+      }
     }
+
+    $p = "$paramList $p";
   }
 
-  if($param->isOptional()) {
+  if($param->isDefaultValueAvailable()) {
     $type = $param->getDefaultValue();
     // Default values for primitives may have constant, primitive values - hence the var_export
     $p .= ' = ' . ($type instanceof ReflectionNamedType ? $type->getName() : var_export($type, true));
@@ -91,10 +110,27 @@ foreach($method->getParameters() as $param) {
 if(!$method->hasReturnType()) {
   $returnType = '';
 } else {
-  $returnType = $method->getReturnType()->getName();
+  if($method->getReturnType() instanceof ReflectionUnionType) {
+    $types = $method->getReturnType()->getTypes();
+  } else {
+    $types = [$method->getReturnType()];
+  }
+
+  $returnTypes = [];
+  foreach($types as $type) {
+    $returnTypes[] = $type->getName();
+  }
+
+  $returnType = implode('|', $returnTypes);
 
   if($returnType === 'self') {
     $returnType = $binding;
+  }
+
+  if($method->getReturnType()->allowsNull() && $returnType !== 'mixed') {
+    if(!($method->getReturnType() instanceof ReflectionUnionType)) {
+      $returnType = "?$returnType";
+    }
   }
 
   $returnType = ": $returnType";
@@ -103,7 +139,7 @@ if(!$method->hasReturnType()) {
 ?>
 
   public static function {! $method->getName() !}({! implode(', ', $params) !}){! $returnType !} {
-@if($method->hasReturnType() && $method->getReturnType()->getName() === 'void')
+@if($method->hasReturnType() && !($method->getReturnType() instanceof ReflectionUnionType) && $method->getReturnType()->getName() === 'void')
     self::inst()->{! $method->getName() !}({! implode(', ', $args) !});
 @else
     return self::inst()->{! $method->getName() !}({! implode(', ', $args) !});

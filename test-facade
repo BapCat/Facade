@@ -6,6 +6,7 @@ require __DIR__ . '/vendor/autoload.php';
 use BapCat\Facade\FacadeRegistry;
 use BapCat\Persist\Drivers\Local\LocalDriver;
 use BapCat\Phi\Phi;
+use PHPUnit\Framework\TestCase;
 
 $ioc = Phi::instance();
 
@@ -24,12 +25,58 @@ class Test {
   public function hello() {
     echo self::HELLO . "\n";
   }
+
+  public function unionType(int|string|Test $var): int|string|Test {
+    return $var;
+  }
+
+  public function nullableUnionType(int|string|Test|TestCase|null $var): int|string|Test|TestCase|null {
+    return $var;
+  }
+
+  public function nullableType(?int $var): ?int {
+    return $var;
+  }
+
+  public function nullableType2(int|null $var): int|null {
+    return $var;
+  }
+
+  public function defaultVal(int $var = 1245): int|null {
+    return $var;
+  }
+
+  public function nullableType3(Test|null $var): Test|null {
+    return $var;
+  }
+
+  public function variadic(Test... $var): array {
+    return $var;
+  }
+
+  public function nulliadic(?Test... $var): array {
+    return $var;
+  }
+
+  public function ref(array &$var): array {
+    return $var;
+  }
+
+  public function nullref(?array &$var): ?array {
+    return $var;
+  }
+
+  public function nullrefDefault(?array &$var = []): ?array {
+    return $var;
+  }
 }
 
 $facade->register('HelloFacade', Test::class);
 
 HelloFacade::hello();
 var_dump(HelloFacade::HELLO);
+var_dump(HelloFacade::unionType('asdf'));
+var_dump(HelloFacade::unionType(1234));
 
 //TODO
 // Temporary workaround; nom grabs onto the first end parenthesis

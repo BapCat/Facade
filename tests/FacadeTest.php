@@ -10,6 +10,8 @@ class FacadeTest extends TestCase {
   public function testCallingFacadeMethods(): void {
     $this->assertEquals('bar', FooFacade::getBar());
     $this->assertEquals('bar', FooFacade::returnThisVar('bar'));
+    $this->assertEquals('bar', FooFacade::unionType('bar'));
+    $this->assertEquals(100, FooFacade::unionType(100));
   }
 
   /**

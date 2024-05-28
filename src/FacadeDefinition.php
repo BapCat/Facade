@@ -7,6 +7,7 @@ use BapCat\Values\Text;
 
 use ReflectionClass;
 use ReflectionException;
+use ReflectionUnionType;
 
 /**
  * @property-read  string  $name
@@ -75,13 +76,33 @@ class FacadeDefinition {
         $methods[] = $method;
 
         foreach($method->getParameters() as $param) {
-          if($param->getType() !== null && !$param->getType()->isBuiltin()) {
-            $imports[] = $param->getType()->getName();
+          if($param->getType() !== null) {
+            if($param->getType() instanceof ReflectionUnionType) {
+              $types = $param->getType()->getTypes();
+            } else {
+              $types = [$param->getType()];
+            }
+
+            foreach($types as $type) {
+              if(!$type->isBuiltin()) {
+                $imports[self::getShortClassName($type->getName())] = $type->getName();
+              }
+            }
           }
         }
 
-        if($method->hasReturnType() && !$method->getReturnType()->isBuiltin()) {
-          $imports[] = $method->getReturnType()->getName();
+        if($method->hasReturnType()) {
+          if($method->getReturnType() instanceof ReflectionUnionType) {
+            $types = $method->getReturnType()->getTypes();
+          } else {
+            $types = [$method->getReturnType()];
+          }
+
+          foreach($types as $type) {
+            if(!$type->isBuiltin()) {
+              $imports[self::getShortClassName($type->getName())] = $type->getName();
+            }
+          }
         }
 
         if($method->getDocComment() !== false) {
@@ -101,13 +122,14 @@ class FacadeDefinition {
             foreach($methodImports as $methodImport) {
               if(substr_compare($methodImport, $exception, -strlen($exception)) === 0) {
                 $found = true;
-                $imports[] = $methodImport;
+                $imports[self::getShortClassName($methodImport)] = $methodImport;
                 break;
               }
             }
 
             if(!$found) {
-              $imports[] = $method->getDeclaringClass()->getNamespaceName() . '\\' . $exception;
+              $import = $method->getDeclaringClass()->getNamespaceName() . '\\' . ltrim($exception, '\\');
+              $imports[self::getShortClassName($import)] = $import;
             }
           }
         }
@@ -138,5 +160,9 @@ class FacadeDefinition {
       'methods' => $methods,
       'imports' => $imports,
     ];
+  }
+
+  private static function getShortClassName(string $fqcn): string {
+    return substr($fqcn, strrpos($fqcn, '\\') + 1);
   }
 }
