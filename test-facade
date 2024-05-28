@@ -50,6 +50,10 @@ class Test {
     return $var;
   }
 
+  public function nullableType3Default(Test|null $var = null): Test|null {
+    return $var;
+  }
+
   public function variadic(Test... $var): array {
     return $var;
   }
