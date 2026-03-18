@@ -65,7 +65,7 @@ $args = [];
 
 foreach($method->getParameters() as $param) {
   $p = '$' . $param->getName();
-  $args[] = $p;
+  $a = $p;
 
   if($param->isPassedByReference()) {
     $p = "&$p";
@@ -73,6 +73,7 @@ foreach($method->getParameters() as $param) {
 
   if($param->isVariadic()) {
     $p = "...$p";
+    $a = "...$a";
   }
 
   if($param->hasType()) {
@@ -105,6 +106,7 @@ foreach($method->getParameters() as $param) {
   }
 
   $params[] = $p;
+  $args[] = $a;
 }
 
 if(!$method->hasReturnType()) {
